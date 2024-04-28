@@ -38,6 +38,12 @@ const App = () => {
               setMessage({})
             }, 2000)
           })
+          .catch(error => {
+            setMessage({ text: error.response.data.error, color: "red" })
+            setTimeout(() => {
+              setMessage({})
+            }, 2000)
+          })
       }
     }
     else {
@@ -46,6 +52,12 @@ const App = () => {
         .then((response) => {
           setPersons(persons.concat(response))
           setMessage({ text: `Added ${newPerson.name}` })
+          setTimeout(() => {
+            setMessage({})
+          }, 2000)
+        })
+        .catch(error => {
+          setMessage({ text: error.response.data.error, color: "red" })
           setTimeout(() => {
             setMessage({})
           }, 2000)
