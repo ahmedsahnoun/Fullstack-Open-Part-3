@@ -1,6 +1,7 @@
 const express = require('express')
 const morgan = require('morgan')
 const cors = require('cors')
+const process = require('process');
 require('dotenv').config()
 const Person = require('./models/person')
 
@@ -11,7 +12,7 @@ app.use(express.json())
 app.use(cors())
 app.use(express.static('dist'))
 
-morgan.token('body', function (req, res) {
+morgan.token('body', function (req) {
 	if (req.method === 'POST')
 		return JSON.stringify(req.body)
 	return (' ')
@@ -22,12 +23,14 @@ app.listen(PORT, () => {
 	console.log(`Server running on port ${PORT}`)
 })
 
-app.get('/info', (req, res, next) => {
-	result = `Phonebook has info for ${persons.length} people <br/><br/> ${Date()}`
-	res.send(result)
+app.get('/info', (req, res) => {
+	Person.find({}).then(persons => {
+		const result = `Phonebook has info for ${persons.length} people <br/><br/> ${Date()}`
+		res.send(result)
+	})
 })
 
-app.get('/api/persons', (req, res, next) => {
+app.get('/api/persons', (req, res) => {
 	Person.find({}).then(people => res.json(people))
 })
 
@@ -45,7 +48,7 @@ app.get('/api/persons/:id', (req, res, next) => {
 
 app.delete('/api/persons/:id', (req, res, next) => {
 	Person.findByIdAndDelete(req.params.id)
-		.then(result => {
+		.then(() => {
 			res.status(204).end()
 		})
 		.catch(error => next(error))
@@ -82,7 +85,7 @@ const unknownEndpoint = (req, res) => {
 }
 app.use(unknownEndpoint)
 
-const errorHandler = (error, req, res, next) => {
+const errorHandler = (error, req, res) => {
 	if (error.name === 'CastError') {
 		return res.status(400).send({ error: 'malformatted id' })
 	}
